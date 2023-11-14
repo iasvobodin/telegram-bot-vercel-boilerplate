@@ -16,7 +16,12 @@ bot.command('error', error());
 bot.on('message', greeting());
 
 bot.action('create_new', (ctx) => {
-  ctx.reply('Вы выбрали "Создать новый".');
+  ctx.reply('Вы выбрали "Создать новый".', 	{
+		reply_markup: {
+			force_reply: true,
+			input_field_placeholder: "Reply with your answer",
+		},
+	},);
 });
 
 bot.action('choose_current', (ctx) => {
