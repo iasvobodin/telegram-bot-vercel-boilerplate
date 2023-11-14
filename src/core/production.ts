@@ -6,7 +6,7 @@ import { Update } from 'telegraf/typings/core/types/typegram';
 const debug = createDebug('bot:dev');
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT, 10)) || 3000;
-const VERCEL_URL = `https://${process.env.VERCEL_URL}`;
+const VERCEL_URL = `https://tg-bot-iota-silk.vercel.app`;
 
 const production = async (
   req: VercelRequest,
@@ -21,6 +21,7 @@ const production = async (
   }
 
   const getWebhookInfo = await bot.telegram.getWebhookInfo();
+
   if (getWebhookInfo.url !== VERCEL_URL + '/api') {
     debug(`deleting webhook ${VERCEL_URL}`);
     await bot.telegram.deleteWebhook();
@@ -31,7 +32,7 @@ const production = async (
   if (req.method === 'POST') {
     await bot.handleUpdate(req.body as unknown as Update, res);
   } else {
-    res.status(200).json(`Listening to bot events... ${VERCEL_URL}  ... ${getWebhookInfo.url}`);
+    res.status(200).json(`Listening to bot events...  ${VERCEL_URL} ${process.env.VERCEL_URL}  ... ${getWebhookInfo}`);
   }
   debug(`starting webhook on port: ${PORT} `);
 };
