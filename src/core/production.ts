@@ -32,7 +32,7 @@ const production = async (
   if (req.method === 'POST') {
     await bot.handleUpdate(req.body as unknown as Update, res);
   } else {
-    res.status(200).json(`Listening to bot events...  ${VERCEL_URL} ${process.env.VERCEL_URL}  ... ${getWebhookInfo}`);
+    res.status(200).json(`Listening to bot events...  ${VERCEL_URL} ${process.env.VERCEL_URL}  ... ${JSON.stringify(getWebhookInfo)}`);
   }
   debug(`starting webhook on port: ${PORT} `);
 };
