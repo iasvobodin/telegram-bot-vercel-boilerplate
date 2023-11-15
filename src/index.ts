@@ -36,6 +36,11 @@ bot.action('create_new', (ctx: Context) => {
 	userState[ctx.from!.id] = { stage: 1 };
 });
 
+const saveKeyboard = Markup.inlineKeyboard([
+    Markup.button.callback('Сохранить', 'save_new'),
+    Markup.button.callback('Отмена', 'cancel_new'),
+  ]);
+
 bot.on('text', async (ctx) => {
 	const userId = ctx.from.id;
 	const currentState = userState[userId];
@@ -54,13 +59,22 @@ bot.on('text', async (ctx) => {
 				break;
 			case 3:
 				currentState.technicalIndex = ctx.message.text;
+				currentState.stage++;
+				ctx.reply(`
+				\nЗаявка на производство: ${currentState.productionRequest}
+				\nОбозначение изделия: ${currentState.productDesignation}
+				\nЧертёжный индекс изделия: ${currentState.technicalIndex}
+				`, saveKeyboard);
+
+
 
 				// Добавление в базу данных
 				// await ctx.reply(code('save on db'))
 				// ctx.replyWithHTML('<i>Обработка запроса...</i>');
+				break;
+			case 4:
+					
 				await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
-
-
 				ctx.reply('Новый шкаф добавлен в бд');
 				delete userState[userId]; // Очистка состояния
 				break;
