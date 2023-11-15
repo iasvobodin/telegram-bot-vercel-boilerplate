@@ -45,19 +45,19 @@ bot.on('text', async (ctx) => {
 			case 1:
 				currentState.productionRequest = ctx.message.text;
 				currentState.stage++;
-				ctx.reply('Введите Обозначение изделия:');
+				ctx.reply('Обозначение изделия:');
 				break;
 			case 2:
 				currentState.productDesignation = ctx.message.text;
 				currentState.stage++;
-				ctx.reply('Введите Чертёжный индекс изделия:');
+				ctx.reply('Чертёжный индекс изделия:');
 				break;
 			case 3:
 				currentState.technicalIndex = ctx.message.text;
 
 				// Добавление в базу данных
 				// await ctx.reply(code('save on db'))
-				ctx.replyWithHTML('<i>Обработка запроса...</i>');
+				// ctx.replyWithHTML('<i>Обработка запроса...</i>');
 				await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
 
 
@@ -71,32 +71,39 @@ bot.on('text', async (ctx) => {
 
 
 
-
-
-
-bot.action('create_new', (ctx) => {
-	ctx.editMessageText('Новый шкаф в бд', additionalButtons);
-});
-
-bot.action('choose_current', (ctx) => {
-	// ctx.reply('Вы выбрали "Выбрать текущий".');
-	ctx.reply('Заявка на производство:');
-	bot.on('text', async (ctx) => {
-		await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
-	});
-
-	ctx.reply('Обозначение изделия:');
-	bot.on('text', async (ctx) => {
-		await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
-	});
-
-	ctx.reply('Чертёжный индекс изделия:');
-	bot.on('text', async (ctx) => {
-		await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
-	});
-	ctx.reply('Шкаф добавлен в бд');
+bot.action('choose_current', async (ctx) => {
+	const pets = await sql`SELECT * FROM Pets;`;
+	ctx.reply(JSON.stringify(pets));
 
 });
+
+
+
+
+
+// bot.action('create_new', (ctx) => {
+// 	ctx.editMessageText('Новый шкаф в бд', additionalButtons);
+// });
+
+// bot.action('choose_current', (ctx) => {
+// 	// ctx.reply('Вы выбрали "Выбрать текущий".');
+// 	ctx.reply('Заявка на производство:');
+// 	bot.on('text', async (ctx) => {
+// 		await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
+// 	});
+
+// 	ctx.reply('Обозначение изделия:');
+// 	bot.on('text', async (ctx) => {
+// 		await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
+// 	});
+
+// 	ctx.reply('Чертёжный индекс изделия:');
+// 	bot.on('text', async (ctx) => {
+// 		await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
+// 	});
+// 	ctx.reply('Шкаф добавлен в бд');
+
+// });
 
 
 bot.action('production_request', async (ctx: Context) => {
