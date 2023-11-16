@@ -1,4 +1,5 @@
 import { Telegraf, Markup, Context } from 'telegraf';
+import { message } from 'telegraf/filters'
 import { sql } from '@vercel/postgres';
 import { code } from 'telegraf/format'
 import { about } from './commands';
@@ -22,8 +23,8 @@ const additionalButtons = Markup.inlineKeyboard([
 	Markup.button.callback('Чертёжный индекс изделия', 'technical_index'),
 ]);
 
-interface UserState {
-	stage: number;
+type UserState = {
+	stage?: number;
 	productionRequest?: string;
 	productDesignation?: string;
 	technicalIndex?: string;
@@ -32,7 +33,7 @@ interface UserState {
 let userState: { [userId: number]: UserState } = {};
 
 bot.action('create_new', (ctx: Context) => {
-	ctx.editMessageText('Добавляем новый шкаф.\nВведите\nЗаявку на производство:');
+	ctx.editMessageText('Добавляем новый шкаф.\nВведите\n\nЗаявку на производство:');
 	userState[ctx.from!.id] = { stage: 1 };
 });
 
@@ -41,7 +42,9 @@ const saveKeyboard = Markup.inlineKeyboard([
     Markup.button.callback('Отмена', 'cancel_new'),
   ]);
 
-bot.on('text', async (ctx) => {
+const newCabinet: UserState = {}
+
+bot.on(message('text'), async (ctx) => {
 	const userId = ctx.from.id;
 	const currentState = userState[userId];
 
@@ -59,34 +62,45 @@ bot.on('text', async (ctx) => {
 				break;
 			case 3:
 				currentState.technicalIndex = ctx.message.text;
-				currentState.stage++;
+				// currentState.stage++;
 				ctx.reply(`
 				\nЗаявка на производство: ${currentState.productionRequest}
 				\nОбозначение изделия: ${currentState.productDesignation}
 				\nЧертёжный индекс изделия: ${currentState.technicalIndex}
 				`, saveKeyboard);
 
+				newCabinet.productionRequest = currentState.productionRequest
+				newCabinet.productDesignation = currentState.productDesignation
+				newCabinet.technicalIndex = currentState.technicalIndex
 
 
 				// Добавление в базу данных
 				// await ctx.reply(code('save on db'))
 				// ctx.replyWithHTML('<i>Обработка запроса...</i>');
 				break;
-			case 4:
+			// case 4:
 					
-				await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
-				ctx.reply('Новый шкаф добавлен в бд');
-				delete userState[userId]; // Очистка состояния
-				break;
+			// 	await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
+			// 	ctx.reply('Новый шкаф добавлен в бд');
+			// 	delete userState[userId]; // Очистка состояния
+			// 	break;
 
 		}
 	}
 });
 
+bot.action('save_new', async (ctx) => {
+	// Cabinets ( productionRequest varchar(255), productDesignation varchar(255), technicalIndexvarchar(255).  );
+	await sql`INSERT INTO Cabinets (productionRequest, productDesignation, technicalIndex) VALUES (${newCabinet.productionRequest}, ${newCabinet.productDesignation} ${newCabinet.technicalIndex});`;
+	ctx.reply('Новый шкаф добавлен в бд');
+});
+
+
+
 
 
 bot.action('choose_current', async (ctx) => {
-	const pets = await sql`SELECT * FROM Pets;`;
+	const pets = await sql`SELECT * FROM Cabinets;`;
 	ctx.reply(JSON.stringify(pets));
 
 });
