@@ -1,10 +1,8 @@
 import { Telegraf, Markup, Context } from 'telegraf';
 import { message } from 'telegraf/filters'
 import { sql } from '@vercel/postgres';
-import { code } from 'telegraf/format'
 import { about } from './commands';
 import { error } from './commands';
-import { greeting } from './text';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { development, production } from './core';
 
@@ -90,9 +88,10 @@ bot.on(message('text'), async (ctx) => {
 });
 
 bot.action('save_new', async (ctx) => {
-	// Cabinets ( productionRequest varchar(255), productDesignation varchar(255), technicalIndexvarchar(255).  );
-	await sql`INSERT INTO Cabinets (productionRequest, productDesignation, technicalIndex) VALUES (${newCabinet.productionRequest}, ${newCabinet.productDesignation} ${newCabinet.technicalIndex});`;
-	ctx.reply('Новый шкаф добавлен в бд');
+	console.log(newCabinet);
+	
+	await sql`INSERT INTO Cabinets (Productionrequest, Productdesignation, Technicalindex) VALUES (${newCabinet.productionRequest}, ${newCabinet.productDesignation}, ${newCabinet.technicalIndex});`;
+	ctx.editMessageText('Новый шкаф добавлен в бд');
 });
 
 
@@ -100,8 +99,10 @@ bot.action('save_new', async (ctx) => {
 
 
 bot.action('choose_current', async (ctx) => {
-	const pets = await sql`SELECT * FROM Cabinets;`;
-	ctx.reply(JSON.stringify(pets));
+	// await sql`DELETE FROM Cabinets;`;
+	const Cabinets = await sql`SELECT * FROM Cabinets;`;
+	console.log(Cabinets.rows);
+	ctx.reply(JSON.stringify(Cabinets.rows.map(e => e.productionrequest)[0]));
 
 });
 
