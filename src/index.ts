@@ -5,14 +5,37 @@ import { about } from './commands';
 import { error } from './commands';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { development, production } from './core';
+import { pagination } from './commands';
+
+
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
 const ENVIRONMENT = process.env.NODE_ENV || '';
 
+const itemsPerPage = 5;
+const totalItems = 30;
+
+
 const bot = new Telegraf(BOT_TOKEN);
+
+// const paginationBot = setupPaginationBot({ itemsPerPage, totalItems });
 
 bot.command('about', about());
 bot.command('error', error());
+
+// Обработка команды /test
+bot.command('test', async (ctx) => {
+	// Массив фруктов (для примера)
+	const fruits = ['Яблоко', 'Груша', 'Банан', 'Апельсин', 'Манго', 'Ананас', 'Виноград', 'Персик', 'Киви', 'Слива', 'Клубника', 'Малина', 'Черешня', 'Гранат', 'Арбуз', 'Авокадо', 'Лимон', 'Помидор', 'Грейпфрут', 'Кокос', 'Мандарин', 'Папайя', 'Гранат', 'Клюква', 'Черника', 'Абрикос', 'Карамбола', 'Фейхоа', 'Шиповник'];
+
+	// Вызываем функцию пагинации
+	await pagination(bot, ctx, fruits);
+});
+// Добавление обработчика команды /testPag
+// bot.command('testPag', (ctx) => {
+// 	const list = paginationBot.generateList(1); // начинать с первой страницы
+// 	ctx.reply(`Список:\n${list.join('\n')}`, paginationBot.mainKeyboard());
+// });
 // bot.on('message', greeting());
 
 const additionalButtons = Markup.inlineKeyboard([
@@ -36,9 +59,9 @@ bot.action('create_new', (ctx: Context) => {
 });
 
 const saveKeyboard = Markup.inlineKeyboard([
-    Markup.button.callback('Сохранить', 'save_new'),
-    Markup.button.callback('Отмена', 'cancel_new'),
-  ]);
+	Markup.button.callback('Сохранить', 'save_new'),
+	Markup.button.callback('Отмена', 'cancel_new'),
+]);
 
 const newCabinet: UserState = {}
 
@@ -77,7 +100,7 @@ bot.on(message('text'), async (ctx) => {
 				// ctx.replyWithHTML('<i>Обработка запроса...</i>');
 				break;
 			// case 4:
-					
+
 			// 	await sql`INSERT INTO Pets (Name, Owner) VALUES (${ctx.message.text}, ${ctx.message.text});`;
 			// 	ctx.reply('Новый шкаф добавлен в бд');
 			// 	delete userState[userId]; // Очистка состояния
@@ -89,7 +112,7 @@ bot.on(message('text'), async (ctx) => {
 
 bot.action('save_new', async (ctx) => {
 	console.log(newCabinet);
-	
+
 	await sql`INSERT INTO Cabinets (Productionrequest, Productdesignation, Technicalindex) VALUES (${newCabinet.productionRequest}, ${newCabinet.productDesignation}, ${newCabinet.technicalIndex});`;
 	ctx.editMessageText('Новый шкаф добавлен в бд');
 });
@@ -158,6 +181,16 @@ bot.action('technical_index', (ctx) => {
 });
 
 
+
+
+// // Добавление обработчика для каждого элемента списка
+// for (let i = 1; i <= totalItems; i++) {
+// 	bot.action(`item_${i}`, (ctx) => paginationBot.handlers.itemClicked(ctx, i));
+// }
+
+// bot.action('prev_page', paginationBot.handlers.prevPage);
+// bot.action('next_page', paginationBot.handlers.nextPage);
+// bot.action('noop', paginationBot.handlers.noop);
 
 
 
